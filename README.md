@@ -14,4 +14,6 @@ git add .
 
 git commit -m "说明你的更改"
 
+git pull
+
 git push

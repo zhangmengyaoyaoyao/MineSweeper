@@ -7,174 +7,186 @@ import java.awt.event.ActionListener;
 import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.*;
+import javax.swing.JOptionPane;
+
 public class MineSweeper implements ActionListener {
-    JFrame frame=new JFrame("扫雷游戏");
-    JButton reset=new JButton("重来");
-    Container container=new Container();
+    JFrame frame = new JFrame("MineSweeper");
+    JButton resetButton = new JButton("Restart");
+    Container container = new Container();
 
-    //游戏数据结构
-    final int row=20;
-    final int col=20;
-    final int bombCount =30;
-    JButton [][] buttons=new JButton[row][col];
-    int [][] counts=new int[row][col];
-    final int BOMBCODE =10;
+    // Game settings
+    final int ROWS = 20;
+    final int COLS = 20;
+    final int BOMB_COUNT = 30;
+    JButton[][] buttons = new JButton[ROWS][COLS];
+    int[][] cellValues = new int[ROWS][COLS];
+    final int BOMB_CODE = 10;
 
-    // 构造函数
-    public MineSweeper(){
-        //1、设置窗口
+    // Constructor
+    public MineSweeper() {
+        // Set up the window
         frame.setSize(900, 900);
-        frame.setResizable(true);//是否可改变窗口大小
+        frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-        //2、添加重来按钮
+
+        // Add restart button
         addResetButton();
-        //添加按钮
+
+        // Add game buttons
         addButtons();
 
-        //埋雷
-        addBomb();
-        //添加雷的计算
-        calcNeiboLei();
+        // Place bombs
+        placeBombs();
+
+        // Calculate adjacent bomb counts
+        calculateAdjacentBombs();
+
         frame.setVisible(true);
     }
-    public void addResetButton(){
-        reset.setBackground(Color.WHITE);
-        reset.setOpaque(true);
-        reset.addActionListener(this);
-        frame.add(reset,BorderLayout.NORTH);
+
+    public void addResetButton() {
+        resetButton.setBackground(Color.WHITE);
+        resetButton.setOpaque(true);
+        resetButton.addActionListener(this);
+        frame.add(resetButton, BorderLayout.NORTH);
     }
 
-    public void addBomb(){
-        Random rand=new Random();
-        int randRow,randCol;
-        for(int i = 0; i< bombCount; i++){
-            randRow=rand.nextInt(row);
-            randCol=rand.nextInt(col);
-            if(counts[randRow][randCol]== BOMBCODE){
-                i--;
-            }else{
-                counts[randRow][randCol]= BOMBCODE;
-                //buttons[randRow][randCol].setText("*");
-
+    public void placeBombs() {
+        Random rand = new Random();
+        int randRow, randCol;
+        for (int i = 0; i < BOMB_COUNT; i++) {
+            randRow = rand.nextInt(ROWS);
+            randCol = rand.nextInt(COLS);
+            if (cellValues[randRow][randCol] == BOMB_CODE) {
+                i--; // Avoid placing bombs at the same position
+            } else {
+                cellValues[randRow][randCol] = BOMB_CODE;
             }
         }
     }
-    public void addButtons(){
-        frame.add(container,BorderLayout.CENTER);
-        container.setLayout(new GridLayout(row,col));
-        for(int i=0;i<row;i++){
-            for(int j=0;j<col;j++){
-                JButton button=new JButton();
-                button.setBackground(Color.yellow);
+
+    public void addButtons() {
+        frame.add(container, BorderLayout.CENTER);
+        container.setLayout(new GridLayout(ROWS, COLS));
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                JButton button = new JButton();
+                button.setBackground(Color.YELLOW);
                 button.setOpaque(true);
                 button.addActionListener(this);
-                buttons[i][j]=button;
+                buttons[i][j] = button;
                 container.add(button);
             }
         }
     }
-    public void calcNeiboLei(){
+
+    public void calculateAdjacentBombs() {
         int count;
-        for(int i=0;i<row;i++){
-            for(int j=0;j<col;j++){
-                count=0;
-                if(counts[i][j]== BOMBCODE) continue;
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                count = 0;
+                if (cellValues[i][j] == BOMB_CODE) continue;
 
-                if(i>0 && j>0 && counts[i-1][j-1]== BOMBCODE) count++;
-                if(i>0&&counts[i-1][j]== BOMBCODE) count++;
-                if(i>0 && j<19 && counts[i-1][j+1]== BOMBCODE) count++;
-                if(j>0 && counts[i][j-1]== BOMBCODE) count++;
-                if(j<19 && counts[i][j+1]== BOMBCODE) count++;
-                if(i<19&&j>0&&counts[i+1][j-1]== BOMBCODE) count++;
-                if(i<19&&counts[i+1][j]== BOMBCODE) count++;
-                if(i<19&&j<19&&counts[i+1][j+1]== BOMBCODE) count++;
+                // Check surrounding cells
+                for (int x = -1; x <= 1; x++) {
+                    for (int y = -1; y <= 1; y++) {
+                        int newRow = i + x;
+                        int newCol = j + y;
+                        if (newRow >= 0 && newRow < ROWS && newCol >= 0 && newCol < COLS && cellValues[newRow][newCol] == BOMB_CODE) {
+                            count++;
+                        }
+                    }
+                }
 
-                counts[i][j]=count;
-                //buttons[i][j].setText(counts[i][j]+"");
+                cellValues[i][j] = count;
             }
         }
     }
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
-        JButton button=(JButton)e.getSource();
-        if(button.equals(reset)){
-            for(int i=0;i<row;i++){
-                for(int j=0;j<col;j++){
-                    buttons[i][j].setText("");
-                    buttons[i][j].setEnabled(true);
-                    buttons[i][j].setBackground(Color.yellow);
-                    counts[i][j]=0;
+        JButton button = (JButton) e.getSource();
+        if (button.equals(resetButton)) {
+            resetGame();
+        } else {
+            handleCellClick(button);
+        }
+    }
+
+    void resetGame() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                buttons[i][j].setText("");
+                buttons[i][j].setEnabled(true);
+                buttons[i][j].setBackground(Color.YELLOW);
+                cellValues[i][j] = 0;
+            }
+        }
+        placeBombs();
+        calculateAdjacentBombs();
+    }
+
+    void handleCellClick(JButton button) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (button.equals(buttons[i][j])) {
+                    if (cellValues[i][j] == BOMB_CODE) {
+                        endGame();
+                    } else {
+                        revealCell(i, j);
+                        checkWin();
+                    }
+                    return;
                 }
             }
-            addBomb();
-            calcNeiboLei();
-        }else{
-            int count=0;
-            for(int i=0;i<row;i++){
-                for(int j=0;j<col;j++){
-                    if(button.equals(buttons[i][j])){
-                        count=counts[i][j];
-                        if(count== BOMBCODE){
-                            LoseGame();
-                        }else{
-                            openCell(i,j);
-                            checkWin();
-                        } return;
+        }
+    }
+
+    void checkWin() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (buttons[i][j].isEnabled() && cellValues[i][j] != BOMB_CODE) return;
+            }
+        }
+        JOptionPane.showMessageDialog(frame, "Congratulations! You won!");
+    }
+
+    void revealCell(int i, int j) {
+        if (!buttons[i][j].isEnabled()) return;
+
+        buttons[i][j].setEnabled(false);
+        buttons[i][j].setText(cellValues[i][j] + "");
+
+        if (cellValues[i][j] == 0) {
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    int newRow = i + x;
+                    int newCol = j + y;
+                    if (newRow >= 0 && newRow < ROWS && newCol >= 0 && newCol < COLS && cellValues[newRow][newCol] != BOMB_CODE) {
+                        revealCell(newRow, newCol);
                     }
                 }
             }
-
-
-        }
-    }
-    void checkWin(){
-        for(int i=0;i<row;i++){
-            for(int j=0;j<col;j++){
-                if(buttons[i][j].isEnabled()==true && counts[i][j]!= BOMBCODE) return;
-            }
-        }
-        JOptionPane.showMessageDialog(frame, "Yeah,你赢了！");
-    }
-    void openCell(int i,int j){
-        if(buttons[i][j].isEnabled()==false) return;
-
-        buttons[i][j].setEnabled(false);
-        if(counts[i][j]==0){
-            if(i>0 && j>0 && counts[i-1][j-1]!= BOMBCODE) openCell(i-1, j-1);
-            if(i>0&&counts[i-1][j]!= BOMBCODE) openCell(i-1, j);
-            if(i>0 && j<19 && counts[i-1][j+1]!= BOMBCODE) openCell(i-1, j+1);
-            if(j>0 && counts[i][j-1]!= BOMBCODE) openCell(i, j-1);
-            if(j<19 && counts[i][j+1]!= BOMBCODE) openCell(i, j+1);
-            if(i<19&&j>0&&counts[i+1][j-1]!= BOMBCODE) openCell(i+1, j-1);
-            if(i<19&&counts[i+1][j]!= BOMBCODE) openCell(i+1, j);
-            if(i<19&&j<19&&counts[i+1][j+1]!= BOMBCODE) openCell(i+1, j+1);
-
-            buttons[i][j].setText(counts[i][j]+"");
-        }else{
-            buttons[i][j].setText(counts[i][j]+"");
         }
     }
 
-    void LoseGame(){
-        for(int i=0;i<row;i++){
-            for(int j=0;j<col;j++){
-                int count=counts[i][j];
-                if(count== BOMBCODE){
+    void endGame() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (cellValues[i][j] == BOMB_CODE) {
                     buttons[i][j].setText("X");
-                    buttons[i][j].setBackground(Color.red);
-                    buttons[i][j].setEnabled(false);
-                }else{
-                    buttons[i][j].setText(count+"");
-                    buttons[i][j].setEnabled(false);
+                    buttons[i][j].setBackground(Color.RED);
+                } else {
+                    buttons[i][j].setText(cellValues[i][j] + "");
                 }
+                buttons[i][j].setEnabled(false);
             }
         }
-    }
-    public static void main(String[] args) {
-        MineSweeper mineSweeper = new MineSweeper();
+        JOptionPane.showMessageDialog(frame, "Game Over! You hit a bomb.");
     }
 
+    public static void main(String[] args) {
+        new MineSweeper();
+    }
 }
