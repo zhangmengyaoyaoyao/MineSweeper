@@ -15,12 +15,12 @@ public class MineSweeper implements ActionListener {
     Container container = new Container();
 
     // Game settings
-    final int ROWS = 20;
-    final int COLS = 20;
-    final int BOMB_COUNT = 30;
-    JButton[][] buttons = new JButton[ROWS][COLS];
-    int[][] cellValues = new int[ROWS][COLS];
-    final int BOMB_CODE = 10;
+    int row;
+    int col;
+    int bombCount;
+    JButton[][] buttons;
+    int[][] counts;
+    final int BOMBCODE = 10;
 
     // Constructor
     public MineSweeper() {
@@ -29,6 +29,38 @@ public class MineSweeper implements ActionListener {
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
+        
+        // Add difficulty levels
+        String[] options = { "Beginner", "Intermediate", "Expert" };
+        int choice = JOptionPane.showOptionDialog(frame, "Select Difficulty Level", "Difficulty",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+
+        switch (choice) {
+            case 0: // Beginner
+                row = 9;
+                col = 9;
+                bombCount = 10;
+                break;
+            case 1: // Intermediate
+                row = 16;
+                col = 16;
+                bombCount = 30;
+                break;
+            case 2: // Expert
+                row = 30;
+                col = 16;
+                bombCount = 50;
+                break;
+            default:
+                row = 9;
+                col = 9;
+                bombCount = 10;
+                break;
+        }
+
+        buttons = new JButton[row][col];
+        counts = new int[row][col];
+        
 
         // Add restart button
         addResetButton();
@@ -55,22 +87,22 @@ public class MineSweeper implements ActionListener {
     public void placeBombs() {
         Random rand = new Random();
         int randRow, randCol;
-        for (int i = 0; i < BOMB_COUNT; i++) {
-            randRow = rand.nextInt(ROWS);
-            randCol = rand.nextInt(COLS);
-            if (cellValues[randRow][randCol] == BOMB_CODE) {
+        for (int i = 0; i < bombCount; i++) {
+            randRow = rand.nextInt(row);
+            randCol = rand.nextInt(col);
+            if (counts[randRow][randCol] == BOMBCODE) {
                 i--; // Avoid placing bombs at the same position
             } else {
-                cellValues[randRow][randCol] = BOMB_CODE;
+                counts[randRow][randCol] = BOMBCODE;
             }
         }
     }
 
     public void addButtons() {
         frame.add(container, BorderLayout.CENTER);
-        container.setLayout(new GridLayout(ROWS, COLS));
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
+        container.setLayout(new GridLayout(row, col));
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
                 JButton button = new JButton();
                 button.setBackground(Color.YELLOW);
                 button.setOpaque(true);
@@ -83,23 +115,22 @@ public class MineSweeper implements ActionListener {
 
     public void calculateAdjacentBombs() {
         int count;
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
                 count = 0;
-                if (cellValues[i][j] == BOMB_CODE) continue;
+                if (counts[i][j] == BOMBCODE) continue;
 
                 // Check surrounding cells
                 for (int x = -1; x <= 1; x++) {
                     for (int y = -1; y <= 1; y++) {
                         int newRow = i + x;
                         int newCol = j + y;
-                        if (newRow >= 0 && newRow < ROWS && newCol >= 0 && newCol < COLS && cellValues[newRow][newCol] == BOMB_CODE) {
+                        if (newRow >= 0 && newRow < row && newCol >= 0 && newCol < col && counts[newRow][newCol] == BOMBCODE) {
                             count++;
                         }
                     }
                 }
-
-                cellValues[i][j] = count;
+                counts[i][j] = count;
             }
         }
     }
@@ -115,12 +146,12 @@ public class MineSweeper implements ActionListener {
     }
 
     void resetGame() {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
                 buttons[i][j].setText("");
                 buttons[i][j].setEnabled(true);
                 buttons[i][j].setBackground(Color.YELLOW);
-                cellValues[i][j] = 0;
+                counts[i][j] = 0;
             }
         }
         placeBombs();
@@ -128,10 +159,10 @@ public class MineSweeper implements ActionListener {
     }
 
     void handleCellClick(JButton button) {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
                 if (button.equals(buttons[i][j])) {
-                    if (cellValues[i][j] == BOMB_CODE) {
+                    if (counts[i][j] == BOMBCODE) {
                         endGame();
                     } else {
                         revealCell(i, j);
@@ -144,9 +175,9 @@ public class MineSweeper implements ActionListener {
     }
 
     void checkWin() {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                if (buttons[i][j].isEnabled() && cellValues[i][j] != BOMB_CODE) return;
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if (buttons[i][j].isEnabled() && counts[i][j] != BOMBCODE) return;
             }
         }
         JOptionPane.showMessageDialog(frame, "Congratulations! You won!");
@@ -156,14 +187,14 @@ public class MineSweeper implements ActionListener {
         if (!buttons[i][j].isEnabled()) return;
 
         buttons[i][j].setEnabled(false);
-        buttons[i][j].setText(cellValues[i][j] + "");
+        buttons[i][j].setText(counts[i][j] + "");
 
-        if (cellValues[i][j] == 0) {
+        if (counts[i][j] == 0) {
             for (int x = -1; x <= 1; x++) {
                 for (int y = -1; y <= 1; y++) {
                     int newRow = i + x;
                     int newCol = j + y;
-                    if (newRow >= 0 && newRow < ROWS && newCol >= 0 && newCol < COLS && cellValues[newRow][newCol] != BOMB_CODE) {
+                    if (newRow >= 0 && newRow < row && newCol >= 0 && newCol < col && counts[newRow][newCol] != BOMBCODE) {
                         revealCell(newRow, newCol);
                     }
                 }
@@ -172,13 +203,13 @@ public class MineSweeper implements ActionListener {
     }
 
     void endGame() {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                if (cellValues[i][j] == BOMB_CODE) {
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if (counts[i][j] == BOMBCODE) {
                     buttons[i][j].setText("X");
                     buttons[i][j].setBackground(Color.RED);
                 } else {
-                    buttons[i][j].setText(cellValues[i][j] + "");
+                    buttons[i][j].setText(counts[i][j] + "");
                 }
                 buttons[i][j].setEnabled(false);
             }
