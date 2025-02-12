@@ -4,10 +4,12 @@ import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Locale;
 import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.Timer; // Import Timer
 
 public class MineSweeper implements ActionListener {
     JFrame frame = new JFrame("MineSweeper");
@@ -22,6 +24,9 @@ public class MineSweeper implements ActionListener {
     int[][] counts;
     final int BOMBCODE = 10;
 
+    // Timer functionality
+    private startGameTimer gameTimer; // Timer object
+
     // Constructor
     public MineSweeper() {
         // Set up the window
@@ -29,7 +34,12 @@ public class MineSweeper implements ActionListener {
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-        
+
+        // Initialize the game timer
+        gameTimer = new startGameTimer(); // Create a new timer object
+        frame.add(gameTimer.getTimerLabel(), BorderLayout.SOUTH); // Add timer label at the bottom
+        gameTimer.startGameTimer(); // Start the game timer immediately when the game starts
+
         // Add difficulty levels
         String[] options = { "Beginner", "Intermediate", "Expert" };
         int choice = JOptionPane.showOptionDialog(frame, "Select Difficulty Level", "Difficulty",
@@ -60,7 +70,7 @@ public class MineSweeper implements ActionListener {
 
         buttons = new JButton[row][col];
         counts = new int[row][col];
-        
+
 
         // Add restart button
         addResetButton();
@@ -156,6 +166,7 @@ public class MineSweeper implements ActionListener {
         }
         placeBombs();
         calculateAdjacentBombs();
+        gameTimer.resetTimer(); // Reset the timer when the game restarts
     }
 
     void handleCellClick(JButton button) {
@@ -181,6 +192,7 @@ public class MineSweeper implements ActionListener {
             }
         }
         JOptionPane.showMessageDialog(frame, "Congratulations! You won!");
+        gameTimer.checkWin(); // Stop timer and display time when the player wins
     }
 
     void revealCell(int i, int j) {
@@ -215,6 +227,7 @@ public class MineSweeper implements ActionListener {
             }
         }
         JOptionPane.showMessageDialog(frame, "Game Over! You hit a bomb.");
+        gameTimer.LoseGame(); // Stop timer and display time when the player loses
     }
 
     public static void main(String[] args) {
