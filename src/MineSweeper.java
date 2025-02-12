@@ -27,6 +27,9 @@ public class MineSweeper implements ActionListener {
     // Timer functionality
     private startGameTimer gameTimer; // Timer object
 
+    // For First Click Safety
+    private boolean firstClick = true; // Track if it's the first click
+
     // Constructor
     public MineSweeper() {
         // Set up the window
@@ -166,6 +169,7 @@ public class MineSweeper implements ActionListener {
         }
         placeBombs();
         calculateAdjacentBombs();
+        firstClick = true; // Reset the first click flag
         gameTimer.resetTimer(); // Reset the timer when the game restarts
     }
 
@@ -173,12 +177,20 @@ public class MineSweeper implements ActionListener {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 if (button.equals(buttons[i][j])) {
+                    if(counts[i][j] == BOMBCODE && firstClick){
+                        while (counts[i][j] == BOMBCODE){
+                            placeBombs(); // Place bombs, avoiding first click area
+                            calculateAdjacentBombs();
+                        }
+                        firstClick = false;
+                    }
                     if (counts[i][j] == BOMBCODE) {
                         endGame();
                     } else {
                         revealCell(i, j);
                         checkWin();
                     }
+                    firstClick = false;
                     return;
                 }
             }
