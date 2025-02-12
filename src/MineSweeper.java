@@ -191,6 +191,7 @@ public class MineSweeper implements ActionListener {
                         checkWin();
                     }
                     firstClick = false;
+                    SoundEffects.clickSound();
                     return;
                 }
             }
@@ -204,6 +205,7 @@ public class MineSweeper implements ActionListener {
             }
         }
         JOptionPane.showMessageDialog(frame, "Congratulations! You won!");
+        SoundEffects.winSound();
         gameTimer.checkWin(); // Stop timer and display time when the player wins
     }
 
@@ -238,6 +240,7 @@ public class MineSweeper implements ActionListener {
                 buttons[i][j].setEnabled(false);
             }
         }
+        SoundEffects.loseSound();
         JOptionPane.showMessageDialog(frame, "Game Over! You hit a bomb.");
         gameTimer.LoseGame(); // Stop timer and display time when the player loses
     }

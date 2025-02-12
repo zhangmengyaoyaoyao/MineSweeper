@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 public class SoundEffects {
     // Constant for the directory where sound files are located
-    private static final String SOUND_DIRECTORY = "resources/sounds/";
+    private static final String SOUND_DIRECTORY = "src/resources/sounds/";
     // Logger instance for logging errors and messages
     private static final Logger LOGGER = Logger.getLogger(SoundEffects.class.getName());
 
