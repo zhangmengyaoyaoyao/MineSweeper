@@ -4,12 +4,8 @@ import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Locale;
 import java.util.Random;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.Timer; // Import Timer
+import javax.swing.*;
 
 public class MineSweeper implements ActionListener {
     JFrame frame = new JFrame("MineSweeper");
@@ -91,7 +87,7 @@ public class MineSweeper implements ActionListener {
     }
 
     public void addResetButton() {
-        resetButton.setBackground(Color.WHITE);
+        resetButton.setBackground(Color.WHITE);//look1
         resetButton.setOpaque(true);
         resetButton.addActionListener(this);
         frame.add(resetButton, BorderLayout.NORTH);
@@ -117,7 +113,7 @@ public class MineSweeper implements ActionListener {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 JButton button = new JButton();
-                button.setBackground(Color.YELLOW);
+                button.setBackground(Color.lightGray);
                 button.setOpaque(true);
                 button.addActionListener(this);
                 buttons[i][j] = button;
@@ -163,7 +159,7 @@ public class MineSweeper implements ActionListener {
             for (int j = 0; j < col; j++) {
                 buttons[i][j].setText("");
                 buttons[i][j].setEnabled(true);
-                buttons[i][j].setBackground(Color.YELLOW);
+                buttons[i][j].setBackground(Color.LIGHT_GRAY);
                 counts[i][j] = 0;
             }
         }
@@ -215,6 +211,7 @@ public class MineSweeper implements ActionListener {
         buttons[i][j].setEnabled(false);
         buttons[i][j].setText(counts[i][j] + "");
 
+
         if (counts[i][j] == 0) {
             for (int x = -1; x <= 1; x++) {
                 for (int y = -1; y <= 1; y++) {
@@ -233,7 +230,7 @@ public class MineSweeper implements ActionListener {
             for (int j = 0; j < col; j++) {
                 if (counts[i][j] == BOMBCODE) {
                     buttons[i][j].setText("X");
-                    buttons[i][j].setBackground(Color.RED);
+                    buttons[i][j].setBackground(Color.PINK);
                 } else {
                     buttons[i][j].setText(counts[i][j] + "");
                 }
