@@ -187,6 +187,7 @@ public class MineSweeper implements ActionListener {
                         checkWin();
                     }
                     firstClick = false;
+                    buttons[i][j].setBackground(Color.WHITE);
                     SoundEffects.clickSound();
                     return;
                 }
@@ -210,7 +211,7 @@ public class MineSweeper implements ActionListener {
 
         buttons[i][j].setEnabled(false);
         buttons[i][j].setText(counts[i][j] + "");
-
+        buttons[i][j].setBackground(Color.WHITE);
 
         if (counts[i][j] == 0) {
             for (int x = -1; x <= 1; x++) {
