@@ -230,7 +230,7 @@ public class MineSweeper implements ActionListener {
             for (int j = 0; j < col; j++) {
                 if (counts[i][j] == BOMBCODE) {
                     buttons[i][j].setText("X");
-                    buttons[i][j].setBackground(Color.PINK);
+                    buttons[i][j].setBackground(Color.RED);
                 } else {
                     buttons[i][j].setText(counts[i][j] + "");
                 }
