@@ -1,6 +1,8 @@
 ## 项目说明
 一个扫雷游戏
+
 UT Austin-Winter Programm-Java course
+
 具体介绍见documents
 
 ## git使用方法
